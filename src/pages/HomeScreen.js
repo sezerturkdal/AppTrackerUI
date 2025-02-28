@@ -4,7 +4,7 @@ import { useNavigate } from "react-router";
 import { Button, Container, Table, Modal, Form, Pagination } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-const HomePage = () => {
+const HomeScreen = () => {
     const [applications, setApplications] = useState([]);
     const [show, setShow] = useState(false);
     const [newAppName, setNewAppName] = useState("");
@@ -50,7 +50,7 @@ const HomePage = () => {
     return (
         <Container className="mt-4 p-4 shadow-lg bg-light rounded">
             <h2 className="text-center text-primary mb-4">Applications</h2>
-            <Button variant="success" className="mb-3" onClick={() => setShow(true)}>
+            <Button variant="success" className="mb-3" onClick={() => navigate("/add")}>
                 + Add Application
             </Button>
 
@@ -196,4 +196,4 @@ const HomePage = () => {
     );
 };
 
-export default HomePage;
+export default HomeScreen;

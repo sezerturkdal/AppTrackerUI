@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router";
-import HomePage from "./pages/HomePage";
-import EditPage from "./pages/EditPage";
+import HomeScreen from "./pages/HomeScreen";
+import EditScreen from "./pages/EditScreen";
+import AddScreen from "./pages/AddScreen";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 
@@ -8,8 +9,9 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/edit/:id" element={<EditPage />} />
+        <Route path="/" element={<HomeScreen />} />
+        <Route path="/edit/:id" element={<EditScreen />} />
+        <Route path="/add" element={<AddScreen />} />
       </Routes>
     </Router>
   );
