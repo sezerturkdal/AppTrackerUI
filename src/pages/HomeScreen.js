@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { getApplications, createApplication, deleteApplication } from "../services/api";
 import { useNavigate } from "react-router";
-import { Button, Container, Table, Modal, Form, Pagination } from "react-bootstrap";
+import { Button, Container, Table, Modal, Form, Pagination, Spinner, Alert } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const HomeScreen = () => {
     const [applications, setApplications] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [show, setShow] = useState(false);
     const [newAppName, setNewAppName] = useState("");
     const [selectedApp, setSelectedApp] = useState(null);
@@ -18,8 +20,14 @@ const HomeScreen = () => {
     }, []);
 
     const fetchApplications = async () => {
-        const data = await getApplications();
-        setApplications(data);
+        try {
+            const data = await getApplications();
+            setApplications(data);
+        } catch (err) {
+            setError("Failed to load applications.");
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleCreateApplication = async () => {
@@ -47,6 +55,19 @@ const HomeScreen = () => {
         setCurrentPage(pageNumber);
     };
 
+    const getPageNumbers = () => {
+        const pages = [];
+        let startPage = Math.max(1, currentPage - 2);
+        let endPage = Math.min(totalPages, startPage + 4);
+        if (endPage - startPage < 4) {
+            startPage = Math.max(1, endPage - 4);
+        }
+        for (let i = startPage; i <= endPage; i++) {
+            pages.push(i);
+        }
+        return pages;
+    };
+
     return (
         <Container className="mt-4 p-4 shadow-lg bg-light rounded">
             <h2 className="text-center text-primary mb-4">Applications</h2>
@@ -54,107 +75,76 @@ const HomeScreen = () => {
                 + Add Application
             </Button>
 
-            <Table striped bordered hover responsive className="table-sm text-center">
-                <thead className="bg-dark text-white">
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Location</th>
-                        <th>Status Level</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {displayedApps.map((app) => (
-                        <tr key={app.id}>
-                            <td>{app.id}</td>
-                            <td>{app.projectName}</td>
-                            <td>{app.projectLocation}</td>
-                            <td>{app.statusLevel.statusName}</td>
-                            <td>
-                                <Button
-                                    variant="info"
-                                    className="me-2"
-                                    onClick={() => navigate(`/edit/${app.id}`)}
-                                >
-                                    Edit
-                                </Button>
-                                <Button variant="danger" onClick={() => setSelectedApp(app.id)}>
-                                    Delete
-                                </Button>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </Table>
+            {loading ? (
+                <div className="text-center">
+                    <Spinner animation="border" role="status">
+                        <span className="visually-hidden">Loading...</span>
+                    </Spinner>
+                </div>
+            ) : error ? (
+                <Alert variant="danger" className="text-center">{error}</Alert>
+            ) : (
+                <>
+                    <Table striped bordered hover responsive className="table-sm text-center">
+                        <thead className="bg-dark text-white">
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Location</th>
+                                <th>Status Level</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {displayedApps.map((app) => (
+                                <tr key={app.id}>
+                                    <td>{app.id}</td>
+                                    <td>{app.projectName}</td>
+                                    <td>{app.projectLocation}</td>
+                                    <td>{app.statusLevel.statusName}</td>
+                                    <td>
+                                        <Button
+                                            variant="info"
+                                            className="me-2"
+                                            onClick={() => navigate(`/edit/${app.id}`)}
+                                        >
+                                            Edit
+                                        </Button>
+                                        <Button variant="danger" onClick={() => setSelectedApp(app.id)}>
+                                            Delete
+                                        </Button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </Table>
+                    
+                    {/* Pagination */}
+                    <Pagination className="justify-content-center mt-3">
+                        <Pagination.Prev
+                            disabled={currentPage === 1}
+                            onClick={() => handlePageChange(currentPage - 1)}
+                        />
 
-            {/* Pagination */}
-            <Pagination className="justify-content-center mt-3">
-                <Pagination.Prev
-                    disabled={currentPage === 1}
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    style={{
-                        width: "50px",
-                        height: "40px",
-                        textAlign: "center",
-                        lineHeight: "40px",
-                        fontSize: "16px",
-                    }}
-                />
+                        {getPageNumbers().map((pageNumber) => (
+                            <Pagination.Item
+                                key={pageNumber}
+                                active={pageNumber === currentPage}
+                                onClick={() => handlePageChange(pageNumber)}
+                            >
+                                {pageNumber}
+                            </Pagination.Item>
+                        ))}
 
-                {currentPage > 3 && <Pagination.Ellipsis disabled style={{
-                    width: "50px",
-                    height: "40px",
-                    textAlign: "center",
-                    lineHeight: "40px",
-                    fontSize: "16px",
-                }} />}
+                        <Pagination.Next
+                            disabled={currentPage === totalPages}
+                            onClick={() => handlePageChange(currentPage + 1)}
+                        />
+                    </Pagination>
+                </>
+            )}
 
-                {[...Array(totalPages)].slice(
-                    Math.max(0, currentPage - 3),
-                    Math.min(totalPages, currentPage + 2)
-                ).map((_, index) => {
-                    const pageNumber = index + 1 + Math.max(0, currentPage - 3);
-                    return (
-                        <Pagination.Item
-                            key={pageNumber}
-                            active={pageNumber === currentPage}
-                            onClick={() => handlePageChange(pageNumber)}
-                            style={{
-                                width: "50px",
-                                height: "40px",
-                                textAlign: "center",
-                                lineHeight: "40px",
-                                fontSize: "16px",
-                            }}
-                        >
-                            {pageNumber}
-                        </Pagination.Item>
-                    );
-                })}
-
-                {currentPage < totalPages - 2 && <Pagination.Ellipsis disabled style={{
-                    width: "50px",
-                    height: "40px",
-                    textAlign: "center",
-                    lineHeight: "40px",
-                    fontSize: "16px",
-                }} />}
-
-                <Pagination.Next
-                    disabled={currentPage === totalPages}
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    style={{
-                        width: "50px",
-                        height: "40px",
-                        textAlign: "center",
-                        lineHeight: "40px",
-                        fontSize: "16px",
-                    }}
-                />
-            </Pagination>
-
-            {/* Add Application Modal */}
+    
             <Modal show={show} onHide={() => setShow(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Add New Application</Modal.Title>
@@ -177,7 +167,7 @@ const HomeScreen = () => {
                 </Modal.Footer>
             </Modal>
 
-            {/* Delete Confirmation Modal */}
+        
             <Modal show={selectedApp !== null} onHide={() => setSelectedApp(null)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Confirm Delete</Modal.Title>

@@ -4,21 +4,21 @@ import { Button, Container, Form, Card } from "react-bootstrap";
 import { createApplication } from "../services/api";
 
 const AddScreen = () => {
-  const [appName, setAppName] = useState("");
-  const [ref, setRef] = useState("");
-  const [location, setLocation] = useState("");
-  const [status, setStatus] = useState("");
+  const [projectName, setProjectName] = useState("");
+  const [projectLocation, setProjectLocation] = useState("");
+  const [notes, setNotes] = useState("");
+  const [projectValue, setProjectValue] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!appName || !location || !status) return;
-    
+    if (!projectName || !projectLocation || !notes) return;
+
     await createApplication({
-      name: appName,
-      location,
-      statusLevel: { statusName: status },
-      ref
+      projectName,
+      projectLocation,
+      projectValue,
+      notes
     });
     navigate("/");
   };
@@ -29,39 +29,40 @@ const AddScreen = () => {
         <Card.Body>
           <h3 className="text-center">Add New Application</h3>
           <Form onSubmit={handleSubmit}>
-          <Form.Group className="mb-3">
-              <Form.Label>Ref #</Form.Label>
-              <Form.Control
-                type="text"
-                value={ref}
-                onChange={(e) => setRef(e.target.value)}
-                required
-              />
-            </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Application Name</Form.Label>
               <Form.Control
                 type="text"
-                value={appName}
-                onChange={(e) => setAppName(e.target.value)}
+                value={projectName}
+                onChange={(e) => setProjectName(e.target.value)}
                 required
               />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label>Location</Form.Label>
+              <Form.Label>Project Location</Form.Label>
               <Form.Control
                 type="text"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
+                value={projectLocation}
+                onChange={(e) => setProjectLocation(e.target.value)}
                 required
               />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label>Status Level</Form.Label>
+              <Form.Label>Value</Form.Label>
               <Form.Control
                 type="text"
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
+                value={projectValue}
+                onChange={(e) => setProjectValue(e.target.value)}
+                required
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Notes</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={4}
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
                 required
               />
             </Form.Group>
