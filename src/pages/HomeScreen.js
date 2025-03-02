@@ -44,7 +44,6 @@ const HomeScreen = () => {
         setSelectedApp(null);
     };
 
-    // Pagination logic
     const totalPages = Math.ceil(applications.length / itemsPerPage);
     const displayedApps = applications.slice(
         (currentPage - 1) * itemsPerPage,
