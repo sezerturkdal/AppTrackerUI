@@ -2,13 +2,15 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button, Container, Form, Card } from "react-bootstrap";
 import { updateApplication, getApplicationDetails } from "../services/api";
+import InquiryItem from "../components/InquiryItem";
 
 const EditScreen = () => {
     const [projectName, setProjectName] = useState("");
     const [projectLocation, setProjectLocation] = useState("");
     const [notes, setNotes] = useState("");
     const [projectValue, setProjectValue] = useState("");
-    const [appStatus, setAppStatus] = useState(1); 
+    const [appStatus, setAppStatus] = useState(1);
+    const [inquiries, setInquiries] = useState([]);
 
     const navigate = useNavigate();
     const { id } = useParams();
@@ -32,12 +34,12 @@ const EditScreen = () => {
     const fetchApplication = async () => {
         try {
             const data = await getApplicationDetails(id);
-            console.log(data);
             setProjectName(data.projectName);
             setProjectLocation(data.projectLocation);
             setNotes(data.notes);
             setProjectValue(data.projectValue);
             setAppStatus(data.statusLevel.id);
+            setInquiries(data.inquiries);
         } catch (err) {
             console.error("Failed to load application", err);
         }
@@ -53,14 +55,14 @@ const EditScreen = () => {
             projectLocation,
             projectValue,
             notes,
-            statusLevel : {id:appStatus} , 
+            statusLevel: { id: appStatus },
         });
 
         navigate("/");
     };
 
     return (
-        <Container className="mt-5 d-flex justify-content-center">
+        <Container className="mt-5 d-flex justify-content-center gap-4">
             <Card style={{ width: "400px", padding: "20px" }}>
                 <Card.Body>
                     <h3 className="text-center">Edit Application</h3>
@@ -105,7 +107,7 @@ const EditScreen = () => {
                             <Form.Label>Application Status</Form.Label>
                             <Form.Select
                                 value={appStatus}
-                                onChange={(e) => setAppStatus(parseInt(e.target.value))} 
+                                onChange={(e) => setAppStatus(parseInt(e.target.value))}
                                 required
                             >
                                 {statusOptions.map((status) => (
@@ -120,6 +122,19 @@ const EditScreen = () => {
                             <Button variant="primary" type="submit">Save</Button>
                         </div>
                     </Form>
+                </Card.Body>
+            </Card>
+
+            <Card style={{ width: "300px", marginLeft: "20px", padding: "20px", overflowY: "auto", maxHeight: "500px" }}>
+                <Card.Body>
+                    <h4 className="text-center">Inquiries</h4>
+                    <div className="inquiries-list">
+                        {inquiries.length === 0 ? (
+                            <p className="text-muted text-center">No inquiries found</p>
+                        ) : (
+                            inquiries.map((inq, index) => <InquiryItem key={index} inquiry={inq} />)
+                        )}
+                    </div>
                 </Card.Body>
             </Card>
         </Container>
