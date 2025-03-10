@@ -1,4 +1,4 @@
-const API_URL = "https://localhost:7224/api"; 
+const API_URL = "https://apptracker.sezerturkdal.com/api"; 
 
 export const getApplications = async () => {
   const response = await fetch(`${API_URL}/applications/GetAllApplications`);

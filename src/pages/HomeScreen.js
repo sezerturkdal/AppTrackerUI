@@ -12,7 +12,8 @@ const HomeScreen = () => {
     const [newAppName, setNewAppName] = useState("");
     const [selectedApp, setSelectedApp] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 5;
+    const [searchTerm, setSearchTerm] = useState("");
+    const itemsPerPage = 10;
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -45,10 +46,9 @@ const HomeScreen = () => {
     };
 
     const totalPages = Math.ceil(applications.length / itemsPerPage);
-    const displayedApps = applications.slice(
-        (currentPage - 1) * itemsPerPage,
-        currentPage * itemsPerPage
-    );
+    const displayedApps = applications
+        .filter((app) => app.id.toString().includes(searchTerm))
+        .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
     const handlePageChange = (pageNumber) => {
         setCurrentPage(pageNumber);
@@ -84,6 +84,14 @@ const HomeScreen = () => {
                 <Alert variant="danger" className="text-center">{error}</Alert>
             ) : (
                 <>
+                    <Form.Control
+                        type="text"
+                        placeholder="Search by ID"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="mb-3"
+                    />
+
                     <Table striped bordered hover responsive className="table-sm text-center">
                         <thead className="bg-dark text-white">
                             <tr>
@@ -143,7 +151,7 @@ const HomeScreen = () => {
                 </>
             )}
 
-    
+        
             <Modal show={show} onHide={() => setShow(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Add New Application</Modal.Title>
